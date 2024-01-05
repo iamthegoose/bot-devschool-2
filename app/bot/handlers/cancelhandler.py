@@ -17,7 +17,7 @@ dp = Dispatcher()
 @router.message(F.text == "Скасувати заповнення поста")
 async def cancel_press(message: Message):
     await message.answer(
-        f"Нам дуже шкода, що ви скасували заповнення поста.{emojize(':smiling_face_with_smiling_eyes:')} Сподіваємось, що ви спробуєте знову!",
+        f"Нам дуже шкода, що ви скасували заповнення поста{emojize(':downcast_face_with_sweat:')} Сподіваємось, що ви спробуєте знову!",
         reply_markup=startkb(),
     )
 
