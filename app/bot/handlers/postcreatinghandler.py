@@ -1,9 +1,10 @@
-from aiogram import Bot, Dispatcher, Router, types, F
+from aiogram import Router, F, types, Bot   
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 from bot.kb.startkb import startkb
 from bot.kb.cancelkb import cancelkb
+from bot.kb.timekb import timekb, CallbackTime
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.callback_answer import CallbackAnswer
@@ -12,8 +13,12 @@ from emoji import emojize
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from bot.handlers.starthandler import StatesUser
+from datetime import date, timedelta, datetime
+from aiogram.exceptions import TelegramBadRequest
+from contextlib import suppress
+from utils.time import Time
 router = Router()
-
+time = Time()
 
 # class StatesUser(StatesGroup):
 #     name = State()
@@ -33,6 +38,9 @@ async def callback_query_handler(callback_query: types.CallbackQuery, bot: Bot, 
                                         \nПридумайте назву вашому посту:",
                                reply_markup=cancelkb())
         await callback_query.answer()
+    if callback_query.data == "+1hour":
+        time.time += timedelta(hours=1)
+        await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
 
 
 @router.message(StatesUser.name)
@@ -53,32 +61,15 @@ async def process_name(message: Message, state: FSMContext) -> None:
         )
 
 
-@router.message(StatesUser.description)
-async def process_description(message: Message, state: FSMContext) -> None:
-    if isinstance(message.text, str):
-        await state.update_data(description=message.text)
-        await state.set_state(StatesUser.time)
-        await message.answer(
-            f"{emojize(':check_mark_button:')} Опис заповнено! Тепер, оберіть необхідний для викладення посту час:",
-        )
-    elif message.text == "":
-        await message.answer(
-            f"{emojize(':warning:')} Опис не може бути пустим!"
-        )
-    else:
-        await message.answer(
-            f"{emojize(':warning:')} Некоректне заповнення опису, спробуйте ще раз"
-        )
 
-# @router.message(StatesUser.time)
-# async def process_description(message: Message, state: FSMContext) -> None:
-#     if isinstance(message.text, str):
-#         await state.update_data(description=message.text)
-#         await state.set_state(StatesUser.time)
-#         await message.answer(
-#             f"{emojize(':check_mark_button:')} Опис заповнено! Тепер, оберіть необхідний для викладення посту час:",
-#         )
-#     else:
-#         await message.answer(
-#             "Некоректне заповнення опису, спробуйте ще раз"
-#         )
+@router.message(StatesUser.description, F.text)
+async def get_description(message: Message, state: FSMContext):
+    await state.update_data(chosen_description=message.text)
+    await state.update_data(sender_time=message.date)
+    user_data = await state.get_data()
+    await message.answer(text="Оберіть запланований час для допису",
+                         reply_markup=timekb(user_data['sender_time']))
+    await state.set_state(StatesUser.time)
+
+
+
