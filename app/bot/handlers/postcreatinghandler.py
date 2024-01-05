@@ -1,4 +1,4 @@
-from aiogram import Router, F, types, Bot   
+from aiogram import Router, F, types, Bot
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
@@ -41,6 +41,30 @@ async def callback_query_handler(callback_query: types.CallbackQuery, bot: Bot, 
     if callback_query.data == "+1hour":
         time.time += timedelta(hours=1)
         await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
+    if callback_query.data == "+30min":
+        time.time += timedelta(minutes=30)
+        await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
+    if callback_query.data == "+10min":
+        time.time += timedelta(minutes=10)
+        await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
+    if callback_query.data == "+1min":
+        time.time += timedelta(minutes=1)
+        await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
+    if callback_query.data == "-1hour":
+        time.time -= timedelta(hours=1)
+        await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
+    if callback_query.data == "-30min":
+        time.time -= timedelta(minutes=30)
+        await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
+    if callback_query.data == "-10min":
+        time.time -= timedelta(minutes=10)
+        await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
+    if callback_query.data == "-1min":
+        time.time -= timedelta(minutes=1)
+        await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
+    if callback_query.data == "set_time":
+        await callback_query.message.answer(f"Ви обрали час <b>{time.time.strftime('%H:%M')}</b> \n Оберіть дату відправлення поста:")
+        await state.set_state(StatesUser.time)
 
 
 @router.message(StatesUser.name)
@@ -61,15 +85,16 @@ async def process_name(message: Message, state: FSMContext) -> None:
         )
 
 
-
 @router.message(StatesUser.description, F.text)
 async def get_description(message: Message, state: FSMContext):
     await state.update_data(chosen_description=message.text)
     await state.update_data(sender_time=message.date)
     user_data = await state.get_data()
-    await message.answer(text="Оберіть запланований час для допису",
+    await message.answer(text=f"{emojize(':check_mark_button:')} Опис збережено! \nОберіть запланований час для допису",
                          reply_markup=timekb(user_data['sender_time']))
     await state.set_state(StatesUser.time)
 
 
-
+# @router.message(StatesUser.time)
+# async def process_time(message: Message, state: FSMContext):
+#     await

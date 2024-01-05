@@ -38,7 +38,6 @@ dp.include_routers(
     starthandler.router,
     cancelhandler.router,
     postcreatinghandler.router,
-    # make_post_handler.router
 )
 
 
