@@ -5,6 +5,7 @@ from aiogram.types import Message, CallbackQuery
 from bot.kb.startkb import startkb
 from bot.kb.cancelkb import cancelkb
 from bot.kb.timekb import timekb, CallbackTime
+from bot.kb.picturedenykb import picturedenykb
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.callback_answer import CallbackAnswer
@@ -63,8 +64,24 @@ async def callback_query_handler(callback_query: types.CallbackQuery, bot: Bot, 
         time.time -= timedelta(minutes=1)
         await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
     if callback_query.data == "set_time":
-        await callback_query.message.answer(f"Ви обрали час <b>{time.time.strftime('%H:%M')}</b> \n Оберіть дату відправлення поста:")
+        await callback_query.message.answer(f"Ви обрали час <b>{time.time.strftime('%H:%M')}</b> \nОберіть дату відправлення поста:")
         await state.set_state(StatesUser.time)
+        await callback_query.message.delete()
+        await callback_query.answer()
+    if callback_query.data == "picture_deny":
+        await state.set_state(StatesUser.saving)
+        await bot.send_message(
+            callback_query.from_user.id,
+            text="Ви відмовились від завантаження фото для посту!"
+        )
+        await callback_query.message.delete()
+        await callback_query.answer()
+    if callback_query.data == "picture_upload":
+        await bot.send_message(
+            callback_query.from_user.id,
+            text="Завантажте бажане зображення:"
+        )
+        await callback_query.answer()
 
 
 @router.message(StatesUser.name)
@@ -91,10 +108,28 @@ async def get_description(message: Message, state: FSMContext):
     await state.update_data(sender_time=message.date)
     user_data = await state.get_data()
     await message.answer(text=f"{emojize(':check_mark_button:')} Опис збережено! \nОберіть запланований час для допису",
-                         reply_markup=timekb(user_data['sender_time']))
+                         reply_markup=timekb(time.time))
     await state.set_state(StatesUser.time)
 
 
-# @router.message(StatesUser.time)
-# async def process_time(message: Message, state: FSMContext):
-#     await
+def valid_date(date_str):
+    try:
+        date_user = datetime.strptime(date_str, '%d.%m.%Y')
+        if date_user.date() >= date.today():
+            return True
+    except ValueError:
+        return False
+
+
+@router.message(StatesUser.time)
+async def process_time(message: Message, state: FSMContext):
+    if valid_date(message.text):
+        await message.answer(
+            text=f"Дату успішно збережено! \nПри бажанні, завантажте зображення для посту",
+            reply_markup=picturedenykb()
+        )
+        await state.set_state(StatesUser.picture)
+    else:
+        await message.answer(
+            "Я не розумію наданої вами дати, спробуйте ще раз в форматі дд.мм.рррр!"
+        )

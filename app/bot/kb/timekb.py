@@ -11,7 +11,7 @@ class CallbackTime(CallbackData, prefix="timeset"):
     action: str
 
 
-def timekb(data:date):
+def timekb(time):
 
     time_builder = InlineKeyboardBuilder()
     time_builder.button(
@@ -23,7 +23,7 @@ def timekb(data:date):
     time_builder.button(
         text=f"{emojize(':up_arrow:')} 1 хв.", callback_data="+1min")
 
-    time_builder.button(text=f"{data}", callback_data="set_time")
+    time_builder.button(text=f"{time}", callback_data="set_time")
 
     time_builder.button(
         text=f"{emojize(':down_arrow:')} 1 год.", callback_data="-1hour")

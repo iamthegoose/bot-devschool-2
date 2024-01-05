@@ -17,8 +17,8 @@ class StatesUser(StatesGroup):
     name = State()
     description = State()
     time = State()
-    calendar = State()
     picture = State()
+    picture_download = State()
     saving = State()
 
 
