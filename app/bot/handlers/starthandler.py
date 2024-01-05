@@ -9,21 +9,27 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.callback_answer import CallbackAnswer
 from random import randint
 from emoji import emojize
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
+
+
+class StatesUser(StatesGroup):
+    name = State()
+    description = State()
+    time = State()
+    calendar = State()
+    picture = State()
+    saving = State()
+
 
 router = Router()
 dp = Dispatcher()
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message):
+async def cmd_start(message: Message, state: FSMContext):
+    await state.clear()
     await message.answer(
         f"Привіт!{emojize(':smiling_face_with_smiling_eyes:')} Я гусь-хелпер{emojize(':goose:')} бот, що допоможе тобі написати ідеальний пост! ",
         reply_markup=startkb()
     )
-
-
-@router.callback_query()
-async def callback_query_handler(callback_query: types.CallbackQuery, bot: Bot):
-    if callback_query.data == "start_create_post":
-        await bot.send_message(callback_query.from_user.id, text="Hello", reply_markup=cancelkb())
-        await callback_query.answer()
