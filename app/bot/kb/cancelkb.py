@@ -1,12 +1,16 @@
 from aiogram import types
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-cancelkb = [
-    [
-        types.KeyboardButton(text="Скасувати заповнення поста"),
-    ],
-]
-cancel_keyboard = types.ReplyKeyboardMarkup(
-    keyboard=cancelkb,
-    resize_keyboard=True,
-    input_field_placeholder="Выберите способ подачи"
-)
+
+def cancelkb():
+    cancel_keyboard = [
+        [
+            types.KeyboardButton(text="Скасувати заповнення поста"),
+        ],
+    ]
+    cancelkb = types.ReplyKeyboardMarkup(
+        keyboard=cancel_keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+    return cancelkb

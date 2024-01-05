@@ -6,10 +6,10 @@ from aiogram import Bot, Dispatcher, Router, types, F
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
-from bot.kb.startkb import start_builder
+from bot.kb.startkb import startkb
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from bot.handlers import start_handler, 
+from bot.handlers import starthandler 
 from emoji import emojize
 dp = Dispatcher()
 bot = Bot(token=settings.TOKEN.get_secret_value(), parse_mode=ParseMode.HTML)
@@ -35,7 +35,7 @@ logging.basicConfig(level=logging.INFO)
 #         await message.answer("Nice try!")
 
 dp.include_routers(
-    start.router,
+    starthandler.router
     # make_post_handler.router
 )
 

@@ -14,11 +14,11 @@ router = Router()
 dp = Dispatcher()
 
 
-@router.message(CommandStart())
-async def cmd_start(message: Message):
+@router.message(F.text == "Скасувати заповнення поста")
+async def cancel_press(message: Message):
     await message.answer(
-        f"Привіт!{emojize(':smiling_face_with_smiling_eyes:')} Я гусь-хелпер{emojize(':goose:')} бот, що допоможе тобі написати ідеальний пост! ",
-        reply_markup=startkb()
+        f"Нам дуже шкода, що ви скасували заповнення поста.{emojize(':smiling_face_with_smiling_eyes:')} Сподіваємось, що ви спробуєте знову!",
+        reply_markup=startkb(),
     )
 
 
