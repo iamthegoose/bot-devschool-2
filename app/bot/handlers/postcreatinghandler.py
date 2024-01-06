@@ -21,13 +21,6 @@ from utils.time import Time
 router = Router()
 time = Time()
 
-# class StatesUser(StatesGroup):
-#     name = State()
-#     description = State()
-#     time = State()
-#     calendar = State()
-#     picture = State()
-#     saving = State()
 
 
 @router.callback_query()

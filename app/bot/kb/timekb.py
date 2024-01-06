@@ -6,9 +6,7 @@ from typing import Optional
 from emoji import emojize
 
 
-class CallbackTime(CallbackData, prefix="timeset"):
-    value: Optional[timedelta] = None
-    action: str
+
 
 
 def timekb(time):
