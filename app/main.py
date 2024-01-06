@@ -23,6 +23,7 @@ dp.include_routers(
 )
 
 
+
 async def main() -> None:
     await dp.start_polling(bot, drop_pending_updates=True)
 if __name__ == "__main__":

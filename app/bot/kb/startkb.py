@@ -8,4 +8,5 @@ def startkb():
         text="Створити пост",
         callback_data="start_create_post")
     )
+    
     return start_builder.as_markup()

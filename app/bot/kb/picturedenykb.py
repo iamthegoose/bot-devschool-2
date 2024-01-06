@@ -13,4 +13,5 @@ def picturedenykb():
         text=f"{emojize(':up_arrow:')}Завантажити зображення",
         callback_data="picture_upload")
     )
+
     return picturedeny_builder.as_markup()

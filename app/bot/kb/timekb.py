@@ -10,7 +10,6 @@ from emoji import emojize
 
 
 def timekb(time):
-
     time_builder = InlineKeyboardBuilder()
     time_builder.button(
         text=f"{emojize(':up_arrow:')} 1 год.", callback_data="+1hour")

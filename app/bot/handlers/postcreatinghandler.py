@@ -22,7 +22,6 @@ router = Router()
 time = Time()
 
 
-
 @router.callback_query()
 async def callback_query_handler(callback_query: types.CallbackQuery, bot: Bot, state: FSMContext):
     if callback_query.data == "start_create_post":

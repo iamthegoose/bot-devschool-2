@@ -13,6 +13,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 
 
+
 class StatesUser(StatesGroup):
     name = State()
     description = State()
