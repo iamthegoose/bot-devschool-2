@@ -19,6 +19,7 @@ class StatesUser(StatesGroup):
     time = State()
     picture = State()
     picture_waiting = State()
+    picture_receiving = State()
     saving = State()
 
 
