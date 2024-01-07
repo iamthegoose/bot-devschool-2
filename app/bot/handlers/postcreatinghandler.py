@@ -4,7 +4,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 from bot.kb.startkb import startkb
 from bot.kb.cancelkb import cancelkb
-from bot.kb.timekb import timekb, CallbackTime
+from bot.kb.timekb import timekb
 from bot.kb.picturedenykb import picturedenykb
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -56,12 +56,14 @@ async def callback_query_handler(callback_query: types.CallbackQuery, bot: Bot, 
         time.time -= timedelta(minutes=1)
         await callback_query.message.edit_reply_markup(reply_markup=timekb(time.time.strftime("%H:%M")))
     if callback_query.data == "set_time":
+        await state.update_data(time=time.time.strftime('%H:%M'))
         await callback_query.message.answer(f"Ви обрали час <b>{time.time.strftime('%H:%M')}</b> \nОберіть дату відправлення поста:")
         await state.set_state(StatesUser.time)
         await callback_query.message.delete()
         await callback_query.answer()
     if callback_query.data == "picture_deny":
         await state.set_state(StatesUser.saving)
+        await state.update_data(emptyphoto=True)
         await bot.send_message(
             callback_query.from_user.id,
             text="Ви відмовились від завантаження фото для посту!"
@@ -72,7 +74,9 @@ async def callback_query_handler(callback_query: types.CallbackQuery, bot: Bot, 
         await bot.send_message(
             callback_query.from_user.id,
             text="Завантажте бажане зображення:"
+
         )
+        await state.set_state(StatesUser.saving)
         await callback_query.answer()
 
 
@@ -96,9 +100,9 @@ async def process_name(message: Message, state: FSMContext) -> None:
 
 @router.message(StatesUser.description, F.text)
 async def get_description(message: Message, state: FSMContext):
-    await state.update_data(chosen_description=message.text)
+    await state.update_data(description=message.text)
     await state.update_data(sender_time=message.date)
-    user_data = await state.get_data()
+    # user_data = await state.get_data()
     await message.answer(text=f"{emojize(':check_mark_button:')} Опис збережено! \nОберіть запланований час для допису",
                          reply_markup=timekb(time.time))
     await state.set_state(StatesUser.time)
@@ -116,6 +120,7 @@ def valid_date(date_str):
 @router.message(StatesUser.time)
 async def process_time(message: Message, state: FSMContext):
     if valid_date(message.text):
+        await state.update_data(chosen_data=message.text)
         await message.answer(
             text=f"Дату успішно збережено! \nПри бажанні, завантажте зображення для посту",
             reply_markup=picturedenykb()
@@ -123,5 +128,33 @@ async def process_time(message: Message, state: FSMContext):
         await state.set_state(StatesUser.picture)
     else:
         await message.answer(
-            "Я не розумію наданої вами дати, спробуйте ще раз в форматі дд.мм.рррр!"
+            "Я не розумію наданої вами дати, оскільки вона вже пройшла або записана в неправильному форматі! Спробуйте ще раз в форматі дд.мм.рррр!"
         )
+
+
+@router.message(StatesUser.saving, F.photo)
+async def process_all_data(message: Message, state: FSMContext):
+    await state.update_data(photo=message.photo[-1].file_id, emptyphoto=False)
+    post_data = await state.get_data()
+    name = post_data['name'].upper()
+    description = post_data['description']
+    post_time = post_data['time']
+    data = post_data['chosen_data']
+    post = f"<b>{name}</b>\n<i>{description}</i>\n{emojize(':three_oclock:')}Час викладення посту: <b>{post_time}</b>\n{emojize(':calendar:')}Дата викладення посту: <b>{data}</b> "
+    await message.answer("Ваш пост має наступний вигляд:")
+    if not post_data['emptyphoto']:
+        photo = post_data['photo']
+        await message.answer_photo(
+            photo=photo,
+            caption=post
+        )
+        await state.clear()
+    else:
+        await message.answer(text=post)
+
+
+@router.message(StatesUser.saving)
+async def sent_picture(message: Message, state: FSMContext):
+    await message.answer(
+        "Будь ласка, завантажте фотографію."
+    )

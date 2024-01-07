@@ -9,6 +9,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.callback_answer import CallbackAnswer
 from random import randint
 from emoji import emojize
+from aiogram.fsm.context import FSMContext
 
 router = Router()
 dp = Dispatcher()
@@ -16,13 +17,13 @@ dp = Dispatcher()
 
 
 @router.message(F.text == "Скасувати заповнення поста")
-async def cancel_press(message: Message):
+async def cancel_press(message: Message, state:FSMContext):
     await message.answer(
         f"Нам дуже шкода, що ви скасували заповнення поста{emojize(':downcast_face_with_sweat:')} Сподіваємось, що ви спробуєте знову!",
         reply_markup=startkb(),
         
     )
-    
+    await state.clear()
 
 
 # @router.callback_query()

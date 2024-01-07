@@ -7,7 +7,6 @@ from bot.kb.cancelkb import cancelkb
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.callback_answer import CallbackAnswer
-from random import randint
 from emoji import emojize
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -19,7 +18,7 @@ class StatesUser(StatesGroup):
     description = State()
     time = State()
     picture = State()
-    picture_download = State()
+    picture_waiting = State()
     saving = State()
 
 
